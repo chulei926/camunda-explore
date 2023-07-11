@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="logback.appName" source="spring.application.name"/>
+    <springProperty scope="context" name="log.dir" source="logging.file.path"/>
+    <property name="log.console.pattern"
+              value="%X{logTraceId} %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %level %file:%line %msg%n"/>
+    <property name="log.console.level" value="info"/>
+    <property name="log.rollingFile.pattern"
+              value="%X{logTraceId} %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %level %file:%line %msg%n"/>
+
+    <!-- 控制台日志 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${log.console.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${log.console.level}</level>
+        </filter>
+    </appender>
+
+    <!-- 应用日志文件 -->
+    <appender name="APP_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.dir:-logs}/${logback.appName}/app.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${log.dir:-logs}/${logback.appName}/history/app.log.%d{yyyy-MM-dd}.%i</FileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.rollingFile.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- 警告错误日志文件 -->
+    <appender name="WARN_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.dir:-logs}/${logback.appName}/warn.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${log.dir:-logs}/${logback.appName}/history/warn.log.%d{yyyy-MM-dd}.%i</FileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.rollingFile.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
+    <!-- 慢日志文件 -->
+    <appender name="SLOW_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.dir:-logs}/${logback.appName}/slow.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${log.dir:-logs}/${logback.appName}/history/slow.log.%d{yyyy-MM-dd}.%i</FileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.rollingFile.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <logger name="com.ctg.itrdc.cache.pool.CtgJedisPool" level="error" />
+    <logger name="org.apache.http" level="warn"/>
+    <logger name="org.springframework" level="info"/>
+    <logger name="org.apache.kafka" level="error"/>
+    <logger name="SlowLogger" level="info">
+        <appender-ref ref="SLOW_LOG_FILE"/>
+    </logger>
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="APP_LOG_FILE"/>
+        <appender-ref ref="WARN_LOG_FILE"/>
+    </root>
+</configuration>
